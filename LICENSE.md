@@ -1,6 +1,6 @@
 Copyright (C) Peter Swords, 2014
 
-peter.swords@gmail.com
+e-mail: s3923-github@yahoo.ie
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
