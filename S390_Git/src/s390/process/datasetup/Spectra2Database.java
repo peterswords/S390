@@ -137,7 +137,7 @@ public class Spectra2Database implements Runnable {
 				.collect(Collectors.toList());
 		
 		// Create the new output spectrum database file.
-		SpectrumDbWriterImpl specDb = new SpectrumDbWriterImpl(indexPath);
+		SpectrumDbWriterImpl specDb = new SpectrumDbWriterImpl(indexPath, lite);
 		
 		// Create the new output emission line csv file and print column headings to it.
 		PrintWriter pw = new PrintWriter(new FileWriter(strSpzlinePath));
@@ -167,8 +167,7 @@ public class Spectra2Database implements Runnable {
 			totalRows += tableCoadd.getNRows();
 
 			// Create a new Spectrum object and add it to the output database
-			SpectrumImpl spec = lite ? new SpectrumImpl(q.getObjID(),
-					tableCoadd) : new SpectrumImpl(q.getObjID(), q.getPlate(),
+			SpectrumImpl spec = new SpectrumImpl(q.getObjID(), q.getPlate(),
 					q.getMJD(), q.getFiber(), tableCoadd);
 
 			specDb.add(spec);

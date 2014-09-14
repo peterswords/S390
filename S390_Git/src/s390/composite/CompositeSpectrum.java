@@ -9,7 +9,9 @@ package s390.composite;
 import java.util.List;
 
 /**
- * Composite spectrum.
+ * Composite spectrum containing geometric and arithmetic mean spectra
+ * and a median spectrum. Created from an {@link AccumulatorSpectrum}
+ * after all input spectra have been added to it.
  * 
  * @author Peter Swords email s3923-ou@yahoo.ie
  *

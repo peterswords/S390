@@ -22,6 +22,10 @@ import s390.sdss.spec.Spectrum;
  *      "http://data.sdss3.org/datamodel/files/BOSS_SPECTRO_REDUX/RUN2D/spectra/PLATE4/spec.html"
  *      >COADD data model</a> for further information.
  * 
+ * This implementation can be initialised either as a "lite" version of the spectrum COADD data,
+ * or the full version. The lite version stores only object ID, and flux and loglam (wavelength)
+ * arrays. See the COADD data model for information on other fields.
+ * 
  * @author Peter Swords email s3923-ou@yahoo.ie
  *
  */
@@ -35,22 +39,26 @@ public class SpectrumImpl implements Spectrum {
 	private boolean lite;
 	
 	/**
-	 * Unique object id
+	 * Unique object id.
 	 */
 	private long objID;
 	
 	/**
-	 * Number of pixels in spectrum
+	 * Number of pixels in spectrum.
 	 */
 	private int nSamples;
 	
 	/**
-	 * Pixel flux
+	 * Pixel flux. See the SDSS <a href=
+	 * "http://data.sdss3.org/datamodel/files/BOSS_SPECTRO_REDUX/RUN2D/spectra/PLATE4/spec.html"
+	 * >COADD data model</a> for further information.
 	 */
 	private float[] flux;
 	
 	/**
-	 * Pixel wavelength
+	 * Pixel wavelength. See the SDSS <a href=
+	 * "http://data.sdss3.org/datamodel/files/BOSS_SPECTRO_REDUX/RUN2D/spectra/PLATE4/spec.html"
+	 * >COADD data model</a> for further information.
 	 */
 	private float[] loglam;
 	
@@ -58,18 +66,82 @@ public class SpectrumImpl implements Spectrum {
 	// Other data from the SDSS COADD data model
 	// These are not stored in the "lite" version.
 	
+	
+	/**
+	 * Inverse variance of flux. See the SDSS <a href=
+	 * "http://data.sdss3.org/datamodel/files/BOSS_SPECTRO_REDUX/RUN2D/spectra/PLATE4/spec.html"
+	 * >COADD data model</a> for further information.
+	 * 
+	 */
 	private float[] ivar;
+
+	
+	/**
+	 * AND mask. See the SDSS <a href=
+	 * "http://data.sdss3.org/datamodel/files/BOSS_SPECTRO_REDUX/RUN2D/spectra/PLATE4/spec.html"
+	 * >COADD data model</a> for further information.
+	 */
 	private int[] andmask;
+
+	
+	/**
+	 * OR mask. See the SDSS <a href=
+	 * "http://data.sdss3.org/datamodel/files/BOSS_SPECTRO_REDUX/RUN2D/spectra/PLATE4/spec.html"
+	 * >COADD data model</a> for further information.
+	 */
 	private int[] ormask;
+	
+	
+	/**
+	 * Wavelength dispersion. See the SDSS <a href=
+	 * "http://data.sdss3.org/datamodel/files/BOSS_SPECTRO_REDUX/RUN2D/spectra/PLATE4/spec.html"
+	 * >COADD data model</a> for further information.
+	 */
 	private float[] wdisp;
+
+	
+	/**
+	 * Subtracted sky flux level. See the SDSS <a href=
+	 * "http://data.sdss3.org/datamodel/files/BOSS_SPECTRO_REDUX/RUN2D/spectra/PLATE4/spec.html"
+	 * >COADD data model</a> for further information.
+	 */
 	private float[] sky;
+
+	
+	/**
+	 * SDSS pipeline flux used for red shift estimation. See the SDSS <a href=
+	 * "http://data.sdss3.org/datamodel/files/BOSS_SPECTRO_REDUX/RUN2D/spectra/PLATE4/spec.html"
+	 * >COADD data model</a> for further information.
+	 */
 	private float[] model;
 
+
+	/**
+	 * SDSS drilled plate number.
+	 */
 	private int plate;
+	
+	
+	/**
+	 * Modified Julian data of exposure.
+	 */
 	private int mjd;
+	
+	
+	/**
+	 * Fiber number within plate.
+	 */
 	private int fiber;
 
 	
+	/**
+	 * Construct spectrum.
+	 * @param objID unique object ID.
+	 * @param plate see COADD data model description.
+	 * @param mjd see COADD data model description.
+	 * @param fiber see COADD data model description.
+	 * @param coadd see COADD data model description.
+	 */
 	public SpectrumImpl(long objID, int plate, int mjd, int fiber, FITSTable coadd) {
 		this.objID = objID;
 		this.plate = plate;
@@ -86,22 +158,20 @@ public class SpectrumImpl implements Spectrum {
 		this.nSamples = flux.length;
 	}
 	
-	public SpectrumImpl(long objID, FITSTable coadd) {
-		this.objID = objID;
-		flux = (float[])coadd.getColumn("flux");
-		loglam = (float[])coadd.getColumn("loglam");
-		this.nSamples = flux.length;
-		lite = true;
-	}
-
+	
 	SpectrumImpl() {
 	}
+	
 	
 	@Override
 	public long getObjID() {
 		return objID;
 	}
 
+	/**
+	 * Fail if this is the lite version of the spectrum.
+	 * @throws RuntimeException if this is the lite version.
+	 */
 	private void nolite() {
 		if (lite) {
 			throw new RuntimeException("Field not available from lite spectrum");
@@ -109,26 +179,50 @@ public class SpectrumImpl implements Spectrum {
 	}
 	
 	
+	/**
+	 * Get SDSS plate number.
+	 * @return plate number
+	 */
 	private int getPlate() {
 		nolite();
 		return plate;
 	}
 
+
+	/**
+	 * Get exposure Modified Julian Date
+	 * @return mjd date
+	 */
 	private int getMJD() {
 		nolite();
 		return mjd;
 	}
 
+	
+	/**
+	 * Get fiber id within plate.
+	 * @return fiber id.
+	 */
 	private int getFiber() {
 		nolite();
 		return fiber;
 	}
 
+	
+	/**
+	 * Get number of pixels in spectrum.
+	 * @return number of pixels.
+	 */
 	@Override
 	public int getNumPixels() {
 		return nSamples;
 	}
 
+	
+	/**
+	 * Get an iterator over the pixels of the spectrum
+	 * @return the iterator.
+	 */
 	@Override
 	public Iterable<SpecPixel> getPixels() {
 		return new Iterable<SpecPixel>() {
@@ -149,14 +243,14 @@ public class SpectrumImpl implements Spectrum {
 						SpecPixel result = new SpecPixel() {
 
 							int j = n;
-							@Override public float getFlux() {return flux[j];}
-							@Override public float getLoglam() {return loglam[j];}
-							@Override public float getIvar() {nolite(); return ivar[j];}
-							@Override public int getAndMask() {nolite(); return andmask[j];}
-							@Override public int getOrMask() {nolite(); return ormask[j];}
-							@Override public float getWdisp() {nolite(); return wdisp[j];}
-							@Override public float getSky() {nolite(); return sky[j];}
-							@Override public float getModel() {nolite(); return model[j];}
+							@Override public float getFlux()    {return flux[j];}
+							@Override public float getLoglam()  {return loglam[j];}
+							@Override public float getIvar()    {nolite(); return ivar[j];}
+							@Override public int   getAndMask() {nolite(); return andmask[j];}
+							@Override public int   getOrMask()  {nolite(); return ormask[j];}
+							@Override public float getWdisp()   {nolite(); return wdisp[j];}
+							@Override public float getSky()     {nolite(); return sky[j];}
+							@Override public float getModel()   {nolite(); return model[j];}
 							
 						};
 						n++;
@@ -168,18 +262,25 @@ public class SpectrumImpl implements Spectrum {
 		};
 	}
 
+	
+	/**
+	 * Get a stream of pixels in the spectrum.
+	 * @return pixel stream.
+	 */
 	@Override
 	public Stream<SpecPixel> stream() {
 		return StreamSupport.stream(getPixels().spliterator(), false);
 	}
 
-	ByteBuffer toByteBuffer() {
+	
+	/**
+	 * Write the spectrum to a byte buffer.
+	 * @param lite indicator if lite version of spectrum is to be written.
+	 * @return a byte buffer containing the spectrum
+	 */
+	ByteBuffer toByteBuffer(boolean lite) {
 		int pixSize = lite? 8 : 32;
 		ByteBuffer buf = ByteBuffer.allocate(8000 * pixSize); // estimated size for 8k pixels
-		if (lite) {
-			// marker value for lite
-			buf.putLong(-1);
-		}
 		buf.putLong(getObjID());
 		if (!lite) {
 	 		buf.putInt(getPlate());
@@ -202,15 +303,17 @@ public class SpectrumImpl implements Spectrum {
 		return buf;
 	}
 	
-	static SpectrumImpl fromByteBuffer(ByteBuffer buf) {
+	
+	/**
+	 * Read a spectrum from a byte buffer.
+	 * @param buf the byte buffer from which to read.
+	 * @param lite indicates if lite version of spectrum is to be read.
+	 * @return the spectrum that has been read.
+	 */
+	static SpectrumImpl fromByteBuffer(ByteBuffer buf, boolean lite) {
 		SpectrumImpl spec = new SpectrumImpl();
-		long first = buf.getLong();
-		if (first == -1) {
-			spec.lite = true;
-			spec.objID = buf.getLong();
-		} else {
-			spec.objID = first;
-		}
+		spec.lite = lite;
+		spec.objID = buf.getLong();
 		if (!spec.lite) {
 			spec.plate = buf.getInt();
 			spec.mjd = buf.getInt();

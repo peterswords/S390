@@ -30,12 +30,14 @@ public class SpectrumDbWriterImpl {
 	 * therefore 2 * 8 = 16 bytes.
 	 */
 	private final static int kIndexEntrySize = 16;
+
 	
 	/**
 	 * Index is represented by a list of pairs of unique object ids and offsets
 	 * to the corresponding object in the spectrum database file.
 	 */
 	List<SimpleMapEntry<Long, Long>> indexList = new ArrayList<SimpleMapEntry<Long, Long>>();
+
 	
 	/**
 	 * Channel to output database file
@@ -44,17 +46,31 @@ public class SpectrumDbWriterImpl {
 
 	
 	/**
+	 * Indicate if "lite" database writer.
+	 */
+	private boolean lite;
+
+	
+	/**
 	 * Constructor: create a new output database file.
 	 * @param path path to database file.
+	 * @param lite indicates if we are to write the smaller "lite" version of the database.
 	 * @throws IOException if the file cannot be opened or already exists.
 	 */
-	public SpectrumDbWriterImpl(Path path) throws IOException {
+	public SpectrumDbWriterImpl(Path path, boolean lite) throws IOException {
+		
+		this.lite = lite;
+		
 		chan = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
 		
 		// The first long in the file is the offset of the database index. We can't write the index
 		// until we have written all the objects, so we write a placeholder zero which we will
 		// overwrite later.
 		writeLong(0L);
+		
+		// the second long indicates if lite version in use
+		writeLong(lite? -1L : 1L);
+		
 	}
 	
 	
@@ -71,7 +87,7 @@ public class SpectrumDbWriterImpl {
 		indexList.add(new SimpleMapEntry<>(spec.getObjID(), chan.position()));
 		
 		// Put spectrum in buffer
-		ByteBuffer buf = spec.toByteBuffer();
+		ByteBuffer buf = spec.toByteBuffer(lite);
 		
 		// The length of the spectrum buffer is its current position after creation.
 		// Write this length as the first long in the object in the database

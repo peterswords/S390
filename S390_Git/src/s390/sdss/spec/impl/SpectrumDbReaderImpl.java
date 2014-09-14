@@ -39,7 +39,7 @@ public class SpectrumDbReaderImpl implements SpectrumDbReader {
 
 	
 	/**
-	 * Default buffer size of {@link #useBuffering} is true.
+	 * Default buffer size if {@link #useBuffering} is true.
 	 */
 	private static final int kBufferDefaultSize = 1 << 23; // 8 Mb
 	
@@ -67,6 +67,12 @@ public class SpectrumDbReaderImpl implements SpectrumDbReader {
 	 * Random I/O channel to database file
 	 */
 	private SeekableByteChannel chan;
+
+
+	/**
+	 * Indicates if database is smaller "lite" version.
+	 */
+	private boolean lite;
 	
 	
 	/**
@@ -92,6 +98,9 @@ public class SpectrumDbReaderImpl implements SpectrumDbReader {
 		// The first long in the file is the offset of the index.
 		// Get the offset and position to the index.
 		long indexOffset = readLong();
+		long liteInd = readLong();
+		this.lite = liteInd == -1;
+		
 		chan.position(indexOffset);
 		
 		// The first long in the index is the size in bytes of the rest of the index.
@@ -224,7 +233,7 @@ public class SpectrumDbReaderImpl implements SpectrumDbReader {
 			ByteBuffer buf  = useBuffering? getFromBuffer(pos) : getFromChan(pos);
 			
 			// Construct spectrum from the buffer
-			return SpectrumImpl.fromByteBuffer(buf);
+			return SpectrumImpl.fromByteBuffer(buf, lite);
 			
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);

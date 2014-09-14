@@ -29,13 +29,6 @@ public class CurrentTest {
 	final static String strConn = "jdbc:h2:tcp://localhost/C:/Users/Peter/Documents/SXP390/db/DR10;USER=sa";
 	final String strIndexPath = "C:/Users/peter/Documents/SXP390/dbf/SpecIndex.dbf";
 
-	@Test
-	@Ignore
-	public void test1() throws IOException {
-		final String strFITS = "C:/Users/peter/Documents/Open University/SXP390/Coding/"
-				+"spec-4549-55556-0022.fits";
-		//DumpFitsMetadata.main(new String[] {strFITS});
-	}
 	
 	@Test
 	@Ignore

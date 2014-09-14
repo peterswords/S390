@@ -11,5 +11,6 @@
 			<attribute name="javadoc_location" value="http://heasarc.gsfc.nasa.gov/docs/heasarc/fits/java/v1.0/javadoc/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/STILTS"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

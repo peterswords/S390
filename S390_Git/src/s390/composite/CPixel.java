@@ -7,7 +7,7 @@
 package s390.composite;
 
 /**
- * Pixel of a composite spectrum.
+ * Pixel of a {@link CompositeSpectrum}.
  * 
  * @author Peter Swords email s3923-ou@yahoo.ie
  *

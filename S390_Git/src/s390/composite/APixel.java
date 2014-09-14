@@ -9,7 +9,7 @@ package s390.composite;
 import java.util.Arrays;
 
 /**
- * Pixel of an accumulator spectrum.
+ * Pixel of an {@link AccumulatorSpectrum}.
  * 
  * @author Peter Swords email s3923-ou@yahoo.ie
  *

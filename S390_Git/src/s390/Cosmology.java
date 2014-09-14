@@ -11,6 +11,19 @@ package s390;
  * Encapsulates cosmology parameters for luminosity distance calculations. Uses
  * <a href="http://www.star.bristol.ac.uk/~mbt/stilts/">STILTS</a> under LGPL.
  * 
+ * Grateful thanks to Mark Taylor (e-mail 12-May-2014) for help with selecting
+ * the subset of STILTS classes needed for calculating luminosity distances.
+ * 
+ * See:
+ * 
+ * Taylor, M.B. (2006) 'STILTS - A Package for Command-Line Processing of
+ * Tabular Data', in Gabriel, C., Arviset, C., Ponz, D. and Solano, E. (eds)
+ * Astronomical Data Analysis Software and Systems XV: proceedings of a meeting
+ * held in San Lorenzo de El Escorial, Spain, 2-5 October 2005 [Online], San
+ * Francisco, Astronomical Society of the Pacific. Available at
+ * http://adsabs.harvard.edu/abs/2006ASPC..351..666T (Accessed 12-May-2014).
+ * 
+ * 
  * @author Peter Swords email s3923-ou@yahoo.ie
  *
  */
