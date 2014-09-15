@@ -5,11 +5,10 @@
  * fitness for any purpose is hereby expressed or implied.
  */
 /**
- * Declares dependencies common to most of the suite.
- * CommonDependencies contains initialisation for the relation database and
- * spectrum database, and runtime parameters such as Cosmology parameters.
+ * SDSS spectrum handling interfaces. Also contains functionality
+ * for converting a spectrum FITS file to csv or spreadsheet format.
  * 
  * @author Peter Swords email s3923-ou@yahoo.ie
  *
  */
-package s390;
+package s390.sdss.spec;

@@ -5,11 +5,12 @@
  * fitness for any purpose is hereby expressed or implied.
  */
 /**
- * Declares dependencies common to most of the suite.
- * CommonDependencies contains initialisation for the relation database and
- * spectrum database, and runtime parameters such as Cosmology parameters.
+ * Handle FITS-format binary tables.
+ * See the <a href="http://fits.gsfc.nasa.gov/">NASA FITS documentation</a> for more
+ * information on the format. The package contains classes for converting FITS data
+ * to relational database tables, or passing it to handlers for any other use.
  * 
  * @author Peter Swords email s3923-ou@yahoo.ie
  *
  */
-package s390;
+package s390.fits;

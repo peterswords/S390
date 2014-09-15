@@ -5,11 +5,9 @@
  * fitness for any purpose is hereby expressed or implied.
  */
 /**
- * Declares dependencies common to most of the suite.
- * CommonDependencies contains initialisation for the relation database and
- * spectrum database, and runtime parameters such as Cosmology parameters.
+ * Tests of S390 suite functionality.
  * 
  * @author Peter Swords email s3923-ou@yahoo.ie
  *
  */
-package s390;
+package s390.process.test;

@@ -5,11 +5,10 @@
  * fitness for any purpose is hereby expressed or implied.
  */
 /**
- * Declares dependencies common to most of the suite.
- * CommonDependencies contains initialisation for the relation database and
- * spectrum database, and runtime parameters such as Cosmology parameters.
+ * SDSS-specific functionality. The sdss package and its sub-packages contain
+ * functionality specific to SDSS objects and their spectra.
  * 
  * @author Peter Swords email s3923-ou@yahoo.ie
  *
  */
-package s390;
+package s390.sdss;

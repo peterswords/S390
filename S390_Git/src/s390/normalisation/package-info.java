@@ -5,11 +5,13 @@
  * fitness for any purpose is hereby expressed or implied.
  */
 /**
- * Declares dependencies common to most of the suite.
- * CommonDependencies contains initialisation for the relation database and
- * spectrum database, and runtime parameters such as Cosmology parameters.
+ * Define and calculate normalisation ranges.
+ * Normalisation ranges are short wavelength intervals over which a
+ * quasar's flux is averaged to yield a normalisation factor. This can
+ * be used to scale quasar spectra, allowing them to be added to a
+ * composite spectrum.
  * 
  * @author Peter Swords email s3923-ou@yahoo.ie
  *
  */
-package s390;
+package s390.normalisation;
