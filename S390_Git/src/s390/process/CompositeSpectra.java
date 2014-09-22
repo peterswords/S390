@@ -21,10 +21,11 @@ import javax.inject.Named;
 
 import ps.db.SQL;
 import ps.util.Report;
-import ps.util.SimpleMapEntry;
+import ps.util.KeyValuePair;
 import ps.util.SupplierX;
 import s390.Cosmology;
 import s390.Quasar;
+import s390.Runner;
 import s390.composite.AccumulatorSpectrum;
 import s390.composite.CPixel;
 import s390.composite.CompositeSpectrum;
@@ -40,8 +41,19 @@ import s390.sdss.spec.SpectrumDbReader;
  * @author Peter Swords email s3923-ou@yahoo.ie
  *
  */
-public abstract class CompositeSpectra implements Runnable {
+public class CompositeSpectra implements Runnable {
 
+	/**
+	 * Main entry point.
+	 * 
+	 * @param args
+	 *            not used
+	 */
+	public static void main(String[] args) {
+		Runner.run(CompositeSpectra.class);
+	}
+	
+	
 	// Dependencies
 	
 	/**
@@ -80,38 +92,31 @@ public abstract class CompositeSpectra implements Runnable {
 	@Override
 	public void run() {
 
-		doSpecCombine();
+		// Produce composites by quasar luminosity in 0.5 magnitude bins
+		doSpecCombine(Functions.binning(0.5, Quasar::getAbsoluteMagnitude), "M");
+		
+		// Produce composites by red shift in 0.2 interval bins		
+		doSpecCombine(Functions.binning(0.2, Quasar::getRedshift), "z");
 		
 	}
 
 
 	/**
-	 * Return the binning function used to bin quasars.
-	 * 
-	 * @return binning function
-	 */
-	abstract Function<Quasar, Double> getBinningFunction();
-	
-	
-	/**
-	 * Get the prefix used for output files.
-	 * 
-	 * @return prefix
-	 */
-	abstract String getFilePrefix();
-	
-	
-	/**
 	 * Combine spectra to produce composite
+	 * 
+	 * @param binning
+	 *            a binning function to group spectra by
+	 * @param filePrefix
+	 *            String prefix for output file names
 	 */
-	void doSpecCombine() {
+	void doSpecCombine(Function<Quasar, Double> binning, String filePrefix) {
 		
 		report.info("Begin...");
 		
 		// Produce a binned map of quasars. Each entry is a bin value mapped
 		// to a list of quasars in that bin.
-		Map<Double, List<Quasar>> zbinnedQuasars = Quasar.queryAll(sql, false)
-				.collect(Collectors.groupingBy(getBinningFunction()));
+		Map<Double, List<Quasar>> zbinnedQuasars = Quasar.queryGood(sql)
+				.collect(Collectors.groupingBy(binning));
 
 		
 		// Informational output:
@@ -133,11 +138,11 @@ public abstract class CompositeSpectra implements Runnable {
 				.stream()
 				.sorted(Map.Entry.comparingByKey())
 				// Map the quasar lists to composite spectra
-				.map(e -> new SimpleMapEntry<Double, CompositeSpectrum>(e
-						.getKey(), processBinnedSpectra(e.getValue())))
+				.map(e -> new KeyValuePair<Double, CompositeSpectrum>(e
+						.getKey(), processBinnedSpectra(e.getValue(), binning)))
 				.collect(Collectors.toList());
 		
-		outputBinnedComposites(zbinnedComposites); 
+		outputBinnedComposites(zbinnedComposites, filePrefix); 
 		
 	}
 	
@@ -146,14 +151,14 @@ public abstract class CompositeSpectra implements Runnable {
 	 * 
 	 * @param quasars
 	 *            list of quasars in bin
-	 * @param binningFunction
+	 * @param binning
 	 *            binning function used to group quasars
 	 * @return a composite of the input spectra
 	 */
-	CompositeSpectrum processBinnedSpectra(List<Quasar> quasars) {
+	CompositeSpectrum processBinnedSpectra(List<Quasar> quasars, Function<Quasar, Double> binning) {
 		
 		// Sort for efficiency of loading spectrum
-		quasars.sort(Comparator.comparing(q -> q.getObjID()));
+		quasars.sort(Comparator.comparing(q -> q.getID()));
 		
 		AccumulatorSpectrum acc = new AccumulatorSpectrum();
 		
@@ -161,7 +166,7 @@ public abstract class CompositeSpectra implements Runnable {
 			return acc.getComposite();
 		}
 		
-		report.info("z = %s, size = %s", getBinningFunction().apply(quasars.get(0)),
+		report.info("z = %s, size = %s", binning.apply(quasars.get(0)),
 				quasars.size());
 		
 		int n = 0;
@@ -172,7 +177,7 @@ public abstract class CompositeSpectra implements Runnable {
 				report.info("%s", n);
 			}
 			// Get the spectrum from the database
-			Spectrum s = specDb.get(q.getObjID());
+			Spectrum s = specDb.get(q.getID());
 			
 			// Use intermediate spectrum to shift, rebin, and normalise
 			IntermediateSpectrum i = new IntermediateSpectrum();
@@ -197,14 +202,16 @@ public abstract class CompositeSpectra implements Runnable {
 	 * 
 	 * @param c
 	 *            a list of bins containing key values and composite spectra
+	 * @param filePrefix
+	 *            String with which to prefix output file names
 	 * @throws FileNotFoundException
 	 *             if output file cannot be created
 	 */
 	private void outputBinnedComposites(
-			List<Map.Entry<Double, CompositeSpectrum>> c) {
+			List<Map.Entry<Double, CompositeSpectrum>> c, String filePrefix) {
 
 		for (Entry<Double, CompositeSpectrum> e : c) {
-			String strFile = getFilePrefix() + e.getKey() + ".csv";
+			String strFile = filePrefix + e.getKey() + ".csv";
 			CompositeSpectrum spec = e.getValue();
 			PrintWriter pw = SupplierX.get( () -> new PrintWriter(new File(dirOut, strFile)));
 			pw.println("WL,count,mean,gmean,median,umean,umedian");

@@ -7,8 +7,6 @@
 package s390.process.datasetup;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,10 +26,8 @@ import ps.util.Report;
 import ps.util.TextUtils;
 import s390.Quasar;
 import s390.Runner;
-import s390.fits.FITSBinaryFile;
 import s390.fits.FITSTable;
 import s390.fits.FITSTable2sql;
-import s390.sdss.Naming;
 import s390.sdss.spec.impl.SpectrumDbWriterImpl;
 import s390.sdss.spec.impl.SpectrumImpl;
 
@@ -133,7 +129,7 @@ public class Spectra2Database implements Runnable {
 
 		// Get a list of quasars sorted by id.
 		List<QuasarBinaryData> quasars = Quasar.queryAll(sql).map(QuasarBinaryData::new)
-				.sorted(Comparator.comparingLong(q -> q.getQuasar().getObjID()))
+				.sorted(Comparator.comparingLong(q -> q.getQuasar().getID()))
 				.collect(Collectors.toList());
 		
 		// Create the new output spectrum database file.
@@ -167,7 +163,7 @@ public class Spectra2Database implements Runnable {
 			totalRows += tableCoadd.getNRows();
 
 			// Create a new Spectrum object and add it to the output database
-			SpectrumImpl spec = new SpectrumImpl(q.getObjID(), q.getPlate(),
+			SpectrumImpl spec = new SpectrumImpl(q.getID(), q.getPlate(),
 					q.getMJD(), q.getFiber(), tableCoadd);
 
 			specDb.add(spec);
@@ -181,7 +177,7 @@ public class Spectra2Database implements Runnable {
 				
 				// Print if wanted
 				if ((linez != 0) && (linezErr != -1)) {
-					pw.print(q.getObjID());
+					pw.print(q.getID());
 					for (Object o : data) {
 						pw.print(',');
 						pw.print(o);
@@ -211,97 +207,6 @@ public class Spectra2Database implements Runnable {
 	}
 	
 
-	/**
-	 * A helper class for getting FITS binary table data for a quasar.
-	 *
-	 */
-	static private class QuasarBinaryData {
-		
-		/**
-		 * Directory for SDSS DR10Q raw spectrum FITS files
-		 */
-		static File dirSpecFiles;
-		
-		
-		/**
-		 * Access to FITS binary table data
-		 */
-		FITSBinaryFile tables;
-		
-		
-		/**
-		 * Associated quasar.
-		 */
-		Quasar q;
-		
-		
-		/**
-		 * Constructor. Construct a quasar from a relational database row.
-		 * @param r SQLResult containing database row
-		 */
-		QuasarBinaryData(Quasar q) {
-			this.q = q;
-		}
-		
-		
-		/**
-		 * Get associated quasar.
-		 * 
-		 * @return quasar
-		 */
-		Quasar getQuasar() {
-			return q;
-		}
-		
-		/**
-		 * Open raw FITS spectrum file to access binary table data.
-		 * @return a set of FITS tables
-		 * @throws FileNotFoundException if the raw spectrum file is not found.
-		 */
-		private FITSBinaryFile getFITSTables() throws FileNotFoundException {
-			if (tables == null) {
-				String specFileName = Naming.getSpecFileName(q.getPlate(), q.getMJD(), q.getFiber());
-				File specFile = new File(dirSpecFiles, specFileName);
-				tables = new FITSBinaryFile(new FileInputStream(specFile));
-			}
-			return tables;
-		}
-		
-		
-		/**
-		 * Get the COADD binary FITS table for this quasar's spectrum.
-		 * 
-		 * @return COADD binary table
-		 * @throws FileNotFoundException
-		 *             if the spectrum file cannot be found
-		 */
-		FITSTable getCoaddTable() throws FileNotFoundException {
-			return getFITSTables().getTable("COADD");
-		}
-		
-		
-		/**
-		 * Get the SPZLINE binary FITS table for this quasar's spectrum.
-		 * 
-		 * @return SPZLINE binary table
-		 * @throws FileNotFoundException
-		 *             if the spectrum file cannot be found
-		 */
-		FITSTable getSpzLineTable() throws FileNotFoundException {
-			return getFITSTables().getTable("SPZLINE");
-		}
-		
-		
-		/**
-		 * Nullify tables to allow garbage collection
-		 */
-		void close() {
-			tables = null;
-		}
-		
-	}
-	
-	
 	/**
 	 * List of spzline (SDSS emission line data) FITS binary table columns.
 	 */

@@ -15,7 +15,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
-import ps.util.SimpleMapEntry;
+import ps.util.KeyValuePair;
 
 /**
  * 
@@ -36,7 +36,7 @@ public class SpectrumDbWriterImpl {
 	 * Index is represented by a list of pairs of unique object ids and offsets
 	 * to the corresponding object in the spectrum database file.
 	 */
-	List<SimpleMapEntry<Long, Long>> indexList = new ArrayList<SimpleMapEntry<Long, Long>>();
+	List<KeyValuePair<Long, Long>> indexList = new ArrayList<KeyValuePair<Long, Long>>();
 
 	
 	/**
@@ -84,7 +84,7 @@ public class SpectrumDbWriterImpl {
 		// Add an entry to the index. Since the channel is currently
 		// positioned where the object will be written, we can use this
 		// position as the offset for the index entry.
-		indexList.add(new SimpleMapEntry<>(spec.getObjID(), chan.position()));
+		indexList.add(new KeyValuePair<>(spec.getObjID(), chan.position()));
 		
 		// Put spectrum in buffer
 		ByteBuffer buf = spec.toByteBuffer(lite);

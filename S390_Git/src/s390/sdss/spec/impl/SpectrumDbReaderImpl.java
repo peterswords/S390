@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import ps.util.SimpleMapEntry;
+import ps.util.KeyValuePair;
 import s390.sdss.spec.Spectrum;
 import s390.sdss.spec.SpectrumDbReader;
 
@@ -60,7 +60,7 @@ public class SpectrumDbReaderImpl implements SpectrumDbReader {
 	 * Index is represented by a list of pairs of unique object ids and offsets
 	 * to the corresponding object in the spectrum database file.
 	 */
-	List<SimpleMapEntry<Long, Long>> indexList = new ArrayList<SimpleMapEntry<Long, Long>>();
+	List<KeyValuePair<Long, Long>> indexList = new ArrayList<KeyValuePair<Long, Long>>();
 
 	
 	/**
@@ -114,9 +114,9 @@ public class SpectrumDbReaderImpl implements SpectrumDbReader {
 				
 		// Each entry in the index is a pair of longs, containing a unique
 		// object id and an offset into the file of the object. Get them all.
-		indexList = new ArrayList<SimpleMapEntry<Long, Long>>(indexEntries);
+		indexList = new ArrayList<KeyValuePair<Long, Long>>(indexEntries);
 		for (int i = 0; i < indexEntries; i++) {
-			SimpleMapEntry<Long, Long> entry = new SimpleMapEntry<>(buf.getLong(), buf.getLong());
+			KeyValuePair<Long, Long> entry = new KeyValuePair<>(buf.getLong(), buf.getLong());
 			indexList.add(entry);
 		}
 		
@@ -185,7 +185,7 @@ public class SpectrumDbReaderImpl implements SpectrumDbReader {
 				
 				return new Iterator<Long>() {
 
-					Iterator<SimpleMapEntry<Long, Long>> i = indexList.iterator();
+					Iterator<KeyValuePair<Long, Long>> i = indexList.iterator();
 					
 					@Override
 					public boolean hasNext() {
@@ -215,7 +215,7 @@ public class SpectrumDbReaderImpl implements SpectrumDbReader {
 	public Spectrum get(long objID) {
 
 		// Construct index key and search for it.
-		SimpleMapEntry<Long, Long> key = new SimpleMapEntry<>(objID, null);
+		KeyValuePair<Long, Long> key = new KeyValuePair<>(objID, null);
 		int index = Collections.binarySearch(indexList, key, Map.Entry.comparingByKey());
 		if (index < 0) {
 			// not found

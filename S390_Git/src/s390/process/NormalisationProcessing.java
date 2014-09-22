@@ -34,7 +34,9 @@ import s390.normalisation.QuasarAverageFlux;
 import s390.sdss.spec.SpectrumDbReader;
 
 /**
- * TODO:
+ * Calculate the evolution of spectral index with luminosity. This also tests
+ * the stability of the wavelength normalisation ranges chosen to provide
+ * reference flux levels for creating composite quasar spectra.
  * 
  * 
  * @author Peter Swords email s3923-ou@yahoo.ie
@@ -78,6 +80,21 @@ public class NormalisationProcessing implements Runnable {
 	
 
 	/**
+	 * Comparator of QuasarAverageFlux by luminosity
+	 */
+	Comparator<QuasarAverageFlux> cmpLuminosity = Comparator.comparing(
+			QuasarAverageFlux::getQuasar,
+			Comparator.comparing(Quasar::getAbsoluteMagnitude));
+
+	
+	/** 
+	 * Grouping function to bin quasars in luminosity increments of 0.2
+	 */
+	Function<QuasarAverageFlux, Double> groupByLuminosity = Functions
+			.binning(0.2, q -> q.getQuasar().getAbsoluteMagnitude());
+
+	
+	/**
 	 * Main program
 	 */
 	@Override
@@ -106,7 +123,7 @@ public class NormalisationProcessing implements Runnable {
 		writeOutListQuasarFlux(listQuasarFlux);
 					
 		report.info("sortByLuminosity()...");
-		sortByLuminosity(listQuasarFlux);
+		evolutionByLuminosity(listQuasarFlux);
 		
 		report.info("...Finished");
 
@@ -200,19 +217,7 @@ public class NormalisationProcessing implements Runnable {
 	 *            A list of quasar average fluxes for all non-BAL quasars,
 	 *            sorted by quasar object id.
 	 */
-	void sortByLuminosity(List<QuasarAverageFlux> listQuasarFlux) {
-
-		// Declare a comparator to sort quasars by luminosity
-		Comparator<Quasar> cmpQuasarLuminosity = 
-				Comparator.comparing(Quasar::getAbsoluteMagnitude);
-		
-		// Use first comparator to construct comparator of QuasarAverageFlux
-		Comparator<QuasarAverageFlux> cmpLuminosity = 
-				Comparator.comparing(QuasarAverageFlux::getQuasar, cmpQuasarLuminosity);
-				
-		// Declare a grouping function to bin quasars in luminosity increments of 0.2, i.e. floor(lum * 5)/5
-		Function<QuasarAverageFlux, Double> groupByLuminosity =
-				q -> ((Math.floor(q.getQuasar().getAbsoluteMagnitude()*5))/5);
+	void evolutionByLuminosity(List<QuasarAverageFlux> listQuasarFlux) {
 
 		// Produce a map of QuasarAverageFlux binned by luminosity.
 		Map<Double, List<QuasarAverageFlux>> quasarsByLuminosity = listQuasarFlux

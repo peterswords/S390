@@ -314,8 +314,12 @@ public class FITSTable2sql {
 			
 			int totalCol = 0;
 			
+			boolean rowAccepted = true;
+			
 			for (int col = 0; col < nCols; col++) {
 				Object value = colData[col] == null? null : Array.get(colData[col], row); 
+				
+				rowAccepted = rowAccepted && colConvert[col].acceptRow(value);
 				
 				if (colIterations[col] == 1) {
 					
@@ -343,7 +347,10 @@ public class FITSTable2sql {
 			}
 			
 			// Consume the current row
-			dataConsumer.accept(dbdata);
+			if (rowAccepted) {
+				dataConsumer.accept(dbdata);
+			}
+		
 		}
 		
 	}

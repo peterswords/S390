@@ -140,8 +140,8 @@ public class QuasarAverageFlux implements Serializable {
 			SpectrumDbReader specDb, Report report) {
 
 		// Get all non-BAL quasars into a map by object id
-		Map<Long, Quasar> quasarsByObjID = Quasar.queryAll(sql, false).collect(
-				HashMap<Long, Quasar>::new, (r, q) -> r.put(q.getObjID(), q),
+		Map<Long, Quasar> quasarsByObjID = Quasar.queryGood(sql).collect(
+				HashMap<Long, Quasar>::new, (r, q) -> r.put(q.getID(), q),
 				(r1, r2) -> r1.putAll(r2));
 				
 		// Create list to hold quasar average fluxes, with capacity equal to quasar list

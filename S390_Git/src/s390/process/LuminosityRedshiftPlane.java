@@ -67,11 +67,11 @@ public class LuminosityRedshiftPlane implements Runnable {
 		
 		pw.println("z,M,Mcalc");
 		
-		Quasar.queryAll(sql).forEach(
+		Quasar.queryGood(sql).forEach(
 				q -> {
 					pw.printf("%s,%s,%s\n", q.getRedshift(),
 							q.getAbsoluteMagnitude(),
-							q.getAbsoluteMagnitude(cosmology));
+							q.getAbsoluteMagnitudeEmission(cosmology));
 				});
 		
 		pw.close();

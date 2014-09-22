@@ -44,6 +44,25 @@ public interface FITSColumn {
 
 	
 	/**
+	 * Accept a row. If the row is not accepted it is not passed to any Consumer
+	 * or written to the database. For a row to be accepted it has to be
+	 * accepted by all columns. If any column rejects it, it is discarded. The
+	 * value passed to the acceptRow method is the original value from the FITS
+	 * binary table, not the converted value returned by convert(Object). Array
+	 * columns will have array types. The default is to accept all rows.
+	 * 
+	 * @param origValue
+	 *            the FITS-format value
+	 * @return true to accept the row or false to discard it.
+	 */
+	default boolean acceptRow(Object origValue) {
+
+		return true;
+
+	}
+	
+	
+	/**
 	 * Accept an iteration of a column. For FITS array columns it may not be
 	 * required to convert all the instances. By accepting an iteration it will
 	 * be converted, otherwise it does not become a column on the target table.
@@ -74,7 +93,7 @@ public interface FITSColumn {
 	 *            the input definition
 	 * @return the output modified definition
 	 */
-	default String getColDefReplace(String colDef) {
+	 default String getColDefReplace(String colDef) {
 		
 		return colDef;
 
